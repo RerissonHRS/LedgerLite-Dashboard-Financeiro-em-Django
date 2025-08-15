@@ -1,0 +1,4 @@
+body { background: #f8fafc; }
+.card { border: none; border-radius: 1rem; }
+.navbar { backdrop-filter: blur(6px); }
+.table thead th { font-weight: 600; }

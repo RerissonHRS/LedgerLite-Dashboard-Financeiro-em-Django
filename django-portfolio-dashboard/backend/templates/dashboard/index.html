@@ -1,0 +1,73 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Itens vendidos</div>
+        <div class="fs-3 fw-bold">{{ total_revenue }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted">Valor total (R$)</div>
+        <div class="fs-3 fw-bold">{{ total_value|floatformat:2 }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="text-muted mb-2">Top categorias</div>
+        <ul class="mb-0">
+          {% for c in top_categories %}
+          <li class="d-flex justify-content-between"><span>{{ c.category }}</span><span class="fw-semibold">{{ c.total }}</span></li>
+          {% empty %}
+          <li>Nenhum dado.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm mt-3">
+  <div class="card-body">
+    <h6 class="card-title">Evolução de vendas</h6>
+    <canvas id="salesChart" height="100"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  fetch("{% url 'dashboard:sales_summary_api' %}")
+    .then(r => r.json())
+    .then(data => { 
+      const ctx = document.getElementById('salesChart');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            { label: 'Quantidade', data: data.qty },
+            { label: 'Valor (R$)', data: data.value, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: { mode: 'index', intersect: false },
+          stacked: false,
+          scales: {
+            y: { type: 'linear', position: 'left' },
+            y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false } }
+          }
+        }
+      })
+    });
+</script>
+{% endblock %}
